@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PT from 'prop-types'
 import axios from 'axios'
 
 export default function Articles(props) {
-    const [articles,setArticles] = useState()
-    const navigate = useNavigate()
   // ✨ where are my props? Destructure them here
+  const { articles, getArticles, deleteArticle, setCurrentArticleId } = props
+
+  const navigate = useNavigate()
 
   // ✨ implement conditional logic: if no token exists
   // we should render a Navigate to login screen (React Router v.6)
- const logout = () => {
-    localStorage.removeItem('token') 
+  const logout = () => {
+    localStorage.removeItem('token')
     navigate('/')
     // ✨ implement
     // If a token is in local storage it should be removed,
@@ -21,29 +22,14 @@ export default function Articles(props) {
   }
 
   useEffect(() => {
-    const token =localStorage.getItem('token')
+    const token = localStorage.getItem('token')
     if (!token) {
       navigate('/')
-    }  else {
-      const fetchArticles = async () => {
-   try {
-     const responce = await axios.get (
-         'http://localhost:9000/api/articles',
-          {headers : {Authorization: token }}
-        ) 
-        setArticles(responce.data)
-   } catch (error) {
-    if (error?.responce.status == 401) logout ()
- 
-   }
-        //Get articles appending token to Authorization header 
-        // if responce is a 401 Unauthorized perform a logout
-        // if response is ok the  articles in compont state
-      }
-      fetchArticles()
+    } else {
+      getArticles()
     }
     // ✨ grab the articles here, on first render only
-  })
+  }, [navigate, getArticles])
 
   return (
     // ✨ fix the JSX: replace `Function.prototype` with actual functions
@@ -51,9 +37,9 @@ export default function Articles(props) {
     <div className="articles">
       <h2>Articles</h2>
       {
-        ![].length
+        articles.length === 0
           ? 'No articles yet'
-          : [].map(art => {
+          : articles.map(art => {
             return (
               <div className="article" key={art.article_id}>
                 <div>
@@ -62,8 +48,8 @@ export default function Articles(props) {
                   <p>Topic: {art.topic}</p>
                 </div>
                 <div>
-                  <button disabled={true} onClick={Function.prototype}>Edit</button>
-                  <button disabled={true} onClick={Function.prototype}>Delete</button>
+                  <button onClick={() => setCurrentArticleId(art.article_id)}>Edit</button>
+                  <button onClick={() => deleteArticle(art.article_id)}>Delete</button>
                 </div>
               </div>
             )

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { NavLink, Routes, Route, useNavigate } from 'react-router-dom'
+import { NavLink, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import Articles from './Articles'
 import LoginForm from './LoginForm'
 import Message from './Message'
@@ -12,13 +12,15 @@ const loginUrl = 'http://localhost:9000/api/login'
 
 export default function App() {
   // ✨ MVP can be achieved with these states
+  const [currentArticleId, setCurrentArticleId] = useState(null)
+  const [currentArticle, setCurrentArticle] = useState(null)
   const [message, setMessage] = useState('')
   const [articles, setArticles] = useState([])
-  const [currentArticleId, setCurrentArticleId] = useState()
   const [spinnerOn, setSpinnerOn] = useState(false)
 
   // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
+  const location = useLocation()
   const redirectToLogin = () => { navigate('/') /* ✨ implement */ }
   const redirectToArticles = () => { navigate('/articles') /* ✨ implement */ }
 
@@ -73,35 +75,102 @@ export default function App() {
     const token = localStorage.getItem('token')
     if (!token) {
       navigate('/')
+    } else if (location.pathname === '/articles') {
+      getArticles()
     }
-  }, [navigate])
+  }, [navigate, location])
 
-  const getArticles = () => {
-    // ✨ implement
-    // We should flush the message state, turn on the spinner
-    // and launch an authenticated request to the proper endpoint.
-    // On success, we should set the articles in their proper state and
-    // put the server success message in its proper state.
-    // If something goes wrong, check the status of the response:
-    // if it's a 401 the token might have gone bad, and we should redirect to login.
-    // Don't forget to turn off the spinner!
+  const getArticles = async () => {
+    console.log("Fetching articles...") // for debug
+    setMessage('')
+    setSpinnerOn(true)
+    try {
+      const res = await axios.get(articlesUrl, {
+        headers: { Authorization: localStorage.getItem('token') }
+      })
+
+      // Fallback if data is not in res.data.articles
+      const articlesData = res.data.articles || res.data
+
+      if (Array.isArray(articlesData)) {
+        setArticles(articlesData)
+      } else {
+        setArticles([])
+      }
+
+      setMessage(res.data.message || 'Articles loaded')
+    } catch (err) {
+      console.error("getArticles error:", err)
+      if (err.response?.status === 401) {
+        redirectToLogin()
+      } else {
+        setMessage('Failed to load articles')
+      }
+    } finally {
+      setSpinnerOn(false)
+      console.log("Done loading.") // for debug
+    }
   }
 
-  const postArticle = article => {
-    // ✨ implement
-    // The flow is very similar to the `getArticles` function.
-    // You'll know what to do! Use log statements or breakpoints
-    // to inspect the response from the server.
+  const postArticle = async (article) => {
+    setMessage('')
+    setSpinnerOn(true)
+    try {
+      const res = await axios.post(articlesUrl, article, {
+        headers: { Authorization: localStorage.getItem('token') }
+      })
+      setMessage(res.data.message)
+      getArticles()
+    } catch (err) {
+      setMessage('Failed to post article')
+    } finally {
+      setSpinnerOn(false)
+    }
   }
 
-  const updateArticle = ({ article_id, article }) => {
-    // ✨ implement
-    // You got this!
+  const updateArticle = async (article_id, article) => {
+    setMessage('')
+    setSpinnerOn(true)
+    try {
+      const res = await axios.put(`${articlesUrl}/${article_id}`, article, {
+        headers: { Authorization: localStorage.getItem('token') }
+      })
+      setMessage(res.data.message)
+      setCurrentArticleId(null)
+      setCurrentArticle(null)
+      getArticles()
+    } catch (err) {
+      setMessage('Failed to update article')
+    } finally {
+      setSpinnerOn(false)
+    }
   }
 
-  const deleteArticle = article_id => {
-    // ✨ implement
+  const deleteArticle = async (article_id) => {
+    setMessage('')
+    setSpinnerOn(true)
+    try {
+      const res = await axios.delete(`${articlesUrl}/${article_id}`, {
+        headers: { Authorization: localStorage.getItem('token') }
+      })
+      setMessage(res.data.message)
+      getArticles()
+    } catch (err) {
+      setMessage('Failed to delete article')
+    } finally {
+      setSpinnerOn(false)
+    }
   }
+
+  // fetch the currentArticle object when currentArticleId changes
+  useEffect(() => {
+    if (currentArticleId) {
+      const found = articles.find(art => art.article_id === currentArticleId)
+      setCurrentArticle(found || null)
+    } else {
+      setCurrentArticle(null)
+    }
+  }, [currentArticleId, articles])
 
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
@@ -120,10 +189,10 @@ export default function App() {
           <Route path="articles" element={
             <>
               <ArticleForm
-                currentArticleId={currentArticleId}
-                setCurrentArticleId={setCurrentArticleId}
+                currentArticle={currentArticle}
                 postArticle={postArticle}
                 updateArticle={updateArticle}
+                setCurrentArticleId={setCurrentArticleId} 
               />
               <Articles
                 getArticles={getArticles}
