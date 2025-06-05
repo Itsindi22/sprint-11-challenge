@@ -29,7 +29,7 @@ export default function Articles(props) {
       getArticles()
     }
     // ✨ grab the articles here, on first render only
-  }, [navigate, getArticles])
+  }, [])
 
   return (
     // ✨ fix the JSX: replace `Function.prototype` with actual functions

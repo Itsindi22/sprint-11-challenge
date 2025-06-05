@@ -45,9 +45,12 @@ export default function ArticleForm(props) {
   const isDisabled = () => {
     // ✨ implement
     // Make sure the inputs have some values
-  
-  }
+   const trimmedtittle = values.title.trim()
+      const trimmedtext = values.text.trim()
+    const trimmedtopic = values.topic.trim()
+    return trimmedtittle.length <1 ||trimmedtext.length <1 ||   trimmedtopic.trim().length === 0
 
+  }
   return (
     // ✨ fix the JSX: make the heading display either "Edit" or "Create"
     // and replace Function.prototype with the correct function

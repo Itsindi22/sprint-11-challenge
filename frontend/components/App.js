@@ -49,12 +49,10 @@ export default function App() {
         }
       )
 
-      // ✅ Save the token securely
       if (response.data.token) {
         localStorage.setItem('token', response.data.token)
       }
 
-      // ✅ Show message and redirect
       setMessage(response.data.message)
       redirectToArticles()
 
@@ -81,7 +79,7 @@ export default function App() {
   }, [navigate, location])
 
   const getArticles = async () => {
-    console.log("Fetching articles...") // for debug
+ 
     setMessage('')
     setSpinnerOn(true)
     try {
@@ -108,7 +106,7 @@ export default function App() {
       }
     } finally {
       setSpinnerOn(false)
-      console.log("Done loading.") // for debug
+
     }
   }
 
