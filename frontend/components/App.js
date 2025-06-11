@@ -118,7 +118,6 @@ export default function App() {
         setArticles([])
       }
 
-      setMessage(res.data.message || 'Articles loaded')
     } catch (err) {
       console.error("getArticles error:", err)
       if (err.response?.status === 401) {
