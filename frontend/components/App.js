@@ -69,19 +69,41 @@ export default function App() {
     }
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      navigate('/')
-    } else if (location.pathname === '/articles') {
-      getArticles()
-    }
-  }, [navigate, location])
 
   const getArticles = async () => {
  
     setMessage('')
     setSpinnerOn(true)
+    try {
+      const res = await axios.get(articlesUrl, {
+        headers: { Authorization: localStorage.getItem('token') }
+      })
+
+      // Fallback if data is not in res.data.articles
+      const articlesData = res.data.articles || res.data
+
+      if (Array.isArray(articlesData)) {
+        setArticles(articlesData)
+      } else {
+        setArticles([])
+      }
+
+      setMessage(res.data.message || 'Articles loaded')
+    } catch (err) {
+      console.error("getArticles error:", err)
+      if (err.response?.status === 401) {
+        redirectToLogin()
+      } else {
+        setMessage('Failed to load articles')
+      }
+    } finally {
+      setSpinnerOn(false)
+
+    }
+  }
+  const newArticles = async () => {
+ 
+
     try {
       const res = await axios.get(articlesUrl, {
         headers: { Authorization: localStorage.getItem('token') }
@@ -145,18 +167,19 @@ export default function App() {
   }
 
   const deleteArticle = async (article_id) => {
-    setMessage('')
-    setSpinnerOn(true)
     try {
       const res = await axios.delete(`${articlesUrl}/${article_id}`, {
         headers: { Authorization: localStorage.getItem('token') }
       })
       setMessage(res.data.message)
-      getArticles()
+         newArticles()
+
     } catch (err) {
+         
       setMessage('Failed to delete article')
     } finally {
       setSpinnerOn(false)
+     
     }
   }
 

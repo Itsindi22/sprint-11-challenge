@@ -9,18 +9,6 @@ export default function Articles(props) {
 
   const navigate = useNavigate()
 
-  // ✨ implement conditional logic: if no token exists
-  // we should render a Navigate to login screen (React Router v.6)
-  const logout = () => {
-    localStorage.removeItem('token')
-    navigate('/')
-    // ✨ implement
-    // If a token is in local storage it should be removed,
-    // and a message saying "Goodbye!" should be set in its proper state.
-    // In any case, we should redirect the browser back to the login screen,
-    // using the helper above.
-  }
-
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
