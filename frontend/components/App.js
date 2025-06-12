@@ -36,7 +36,7 @@ export default function App() {
   }
 
   const login = async ({ username, password }) => {
-    setSpinnerOn(true)
+    setSpinnerOn(false)
     setMessage('')
     try {
       const response = await axios.post(
@@ -161,7 +161,7 @@ export default function App() {
     } catch (err) {
       setMessage('Failed to update article')
     } finally {
-      setSpinnerOn(false)
+      setSpinnerOn(true)
     }
   }
 
