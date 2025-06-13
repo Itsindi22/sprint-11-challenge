@@ -36,7 +36,7 @@ export default function App() {
   }
 
   const login = async ({ username, password }) => {
-    setSpinnerOn()
+    setSpinnerOn(false)
     setMessage('')
     try {
       const response = await axios.post(
