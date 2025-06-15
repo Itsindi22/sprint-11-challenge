@@ -139,7 +139,8 @@ export default function App() {
         headers: { Authorization: localStorage.getItem('token') }
       })
       setMessage(res.data.message)
-      getArticles()
+               newArticles()
+
     } catch (err) {
       setMessage('Failed to post article')
     } finally {
@@ -155,9 +156,9 @@ export default function App() {
         headers: { Authorization: localStorage.getItem('token') }
       })
       setMessage(res.data.message)
+        newArticles()
       setCurrentArticleId(null)
       setCurrentArticle(null)
-      getArticles()
     } catch (err) {
       setMessage('Failed to update article')
     } finally {
@@ -181,6 +182,7 @@ export default function App() {
      
     }
   }
+
 
   // fetch the currentArticle object when currentArticleId changes
   useEffect(() => {

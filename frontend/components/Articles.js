@@ -5,7 +5,7 @@ import axios from 'axios'
 
 export default function Articles(props) {
   // ✨ where are my props? Destructure them here
-  const { articles, getArticles, deleteArticle, setCurrentArticleId } = props
+  const { articles, getArticles, deleteArticle, setCurrentArticleId,postArticle } = props
 
   const navigate = useNavigate()
 
